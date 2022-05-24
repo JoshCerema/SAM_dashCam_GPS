@@ -4,6 +4,7 @@ import pandas as pd
 import cv2 as cv
 import glob
 import gpxpy
+import gpxpy.gpx
 from gpxpy import gpx
 from numpy import loadtxt
 from openpyxl import load_workbook
@@ -63,12 +64,14 @@ def find_navette(folder,file,x1,y1,x2,y2,x3,y3,x4,y4):
     row_number = 0
 
     gpx_file = open(folder+file, 'r')
-    # for track in gpx.tracks:
-    #     for segment in track.segments:
-    #         for point in segment.points:
-    #             print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
-    for waypoint in gpx.waypoints:
-        print('waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude))
+    gpx = gpxpy.parse(gpx_file)
+
+    for track in gpx.tracks:
+         for segment in track.segments:
+             for point in segment.points:
+                 print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
+    #for waypoint in gpx.waypoints:
+    #    print('waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude))
 
 
 #folder = "D:/SAM/Videos a analizar/files txt/"
