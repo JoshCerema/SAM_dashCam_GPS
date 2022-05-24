@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import cv2 as cv
 import glob
+import gpxpy
+from gpxpy import gpx
 from numpy import loadtxt
 from openpyxl import load_workbook
 
@@ -54,17 +56,28 @@ def make_excel_gps_acc(folder):
     print("Report finished...")
 
 
-def correct_gpx_file(folder):
-    for file_txt in glob.glob(folder + '*.gpx'):
-        l1 = []
-        with open(file_txt, 'r') as fp:
-            l1 = fp.readlines()
-            with open(file_txt, 'w') as fp:
-                for number, line in enumerate(l1):
-                    if number not in [4, 6]:
-                        fp.write(line)
+def find_navette(folder,file,x1,y1,x2,y2,x3,y3,x4,y4):
+    ## columns for excel file
+    excel_columns = ["GPS Date/Time", "GPS Latitude", "GPS Longitude", "GPS Speed"]
+    df = pd.DataFrame(columns=excel_columns)
+    row_number = 0
+
+    gpx_file = open(folder+file, 'r')
+    # for track in gpx.tracks:
+    #     for segment in track.segments:
+    #         for point in segment.points:
+    #             print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
+    for waypoint in gpx.waypoints:
+        print('waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude))
 
 
+#folder = "D:/SAM/Videos a analizar/files txt/"
+#make_excel_gps_acc(folder)
+folder = "D:/SAM/Videos a analizar/files gpx/"
+file = "20220113_163129_NF.gpx"
+x1,y1 = 1.429921560957295,43.55506695489137
+x2,y2 = 1.429906208488139,43.55493144671023
+x3,y3 = 1.429499460263077,43.55510140183409
+x4,y4 = 1.429490370788564,43.55495948841669
 
-folder = "D:/SAM/Videos a analizar/files txt/"
-make_excel_gps_acc(folder)
+find_navette(folder,file,x1,y1,x2,y2,x3,y3,x4,y4)
