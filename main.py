@@ -9,6 +9,8 @@ from gpxpy import gpx
 from numpy import loadtxt
 from openpyxl import load_workbook
 import re
+import glob
+import os
 
 def make_excel_gps_acc(folder):
     ## columns for excel file
@@ -163,20 +165,58 @@ def evaluate_if_camera_can_see_it(point, a_left, b_left, a_right, b_right):
     else:
         return True
 
+# This function returns a list of all files inside "path" that match "pattern" and "extension"
+# the output format is: "file.extension" (no path)
+def find_files_with_pattern(path,pattern,extension):
+    files_with_pattern = []
+    for file in glob.glob(path+pattern+extension):
+        file = os.path.basename(file)
+        files_with_pattern.append(file)
+    return(files_with_pattern)
 
+# Create gpx files of all MP4 videos inside a folder
+# the input is the folder (or path) in which all MP4 videos are
+# the output is the folder with all the correspondent gpx files
+def extract_gpx_files(path_gpx_files):
+    # execute commands exiftool
+    print('')
 
+# Create a list of commands to execute exiftool to extract gps information from mp4 file
+def list_of_commands_exiftool(path,fmt_file,output_folder,output_file,output_type="gpx"):
+    # find all files mp4
+    list_of_mp4_videos = find_files_with_pattern(path, "*", "mp4")
+    # create the new folder that will contains the gpx files (the outputs)
+    newpath = output_folder
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    # write txt with all commands exiftool
+    with open(newpath+output_file, 'w') as f:
+        for file_mp4 in list_of_mp4_videos:
+            file_name = find_filename_noExtension(file_mp4)
+            if (output_type == "gpx"):
+                line = 'exiftool -p ' + '\"' + fmt_file + '\"' + ' -ee ' + '\"' + path + file_mp4 + '\"' + ' > ' + '\"' + newpath + file_name + '.gpx' + '\"'
+            else:
+                line = 'exiftool -ee ' + '\"' + path + file_mp4 + '\"' + ' > ' + '\"' + newpath + file_name + '.txt' + '\"'
+            f.write(line)
+            f.write('\n')
 
 #folder = "D:/SAM/Videos a analizar/files txt/"
 #make_excel_gps_acc(folder)
-folder1 = "D:/SAM/Videos a analizar/files gpx/"
-folder2 = "D:/SAM/Videos a analizar/files gpx2/"
+folder1 = "G:/SAM/Videos a analizar/files gpx/"
+folder2 = "G:/SAM/Videos a analizar/files gpx2/"
+folder3 = "G:/SAM/Videos a analizar/For_test/"
+file_fmt = "G:/SAM/Notas de las reuniones/gpx_format.txt"
 file1 = "20220113_162829_164930_EF.gpx"
-file2 = "20220113_164930_NF_cleaned.gpx"
-x1,y1 = 1.429921560957295,43.55506695489137
-x2,y2 = 1.429906208488139,43.55493144671023
-x3,y3 = 1.429499460263077,43.55510140183409
-x4,y4 = 1.429490370788564,43.55495948841669
-camera_limits = [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+file2 = "20220113_164930_NF.gpx"
+file2_cleaned = "20220113_164930_NF_cleaned.gpx"
+# limits camera 3...
+x31,y31 = 1.430530384888504,43.55502614224012
+x32,y32 = 1.430377786922381,43.55473957297617
+x33,y33 = 1.429503689002076,43.55510948325009
+x34,y34 = 1.429468257900843,43.55480749443596
+camera_limits = [[x31,y31],[x32,y32],[x33,y33],[x34,y34]]
 
 #clean_gpx_file(folder2,file2)
-navette_infront_of_camera(folder2, file2, 3, camera_limits)
+#navette_infront_of_camera(folder2, file2_cleaned, 3, camera_limits)
+list_of_commands_exiftool(folder3,file_fmt,folder3+"gpx_files/","output.txt")
+list_of_commands_exiftool(folder3,file_fmt,folder3+"txt_files/","output.txt","txt")
